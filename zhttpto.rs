@@ -5,6 +5,7 @@
 // Weilin Xu and David Evans
 // Version 0.1
 
+
 extern mod extra;
 
 use extra::uv;
@@ -14,6 +15,7 @@ use std::str;
 static BACKLOG: uint = 5;
 static PORT:    uint = 4414;
 static IPV4_LOOPBACK: &'static str = "127.0.0.1";
+static mut visitor_count: int = 0;
 
 fn new_connection_callback(new_conn :net_tcp::TcpNewConnection, _killch: std::comm::SharedChan<Option<extra::net_tcp::TcpErrData>>)
 {
@@ -32,18 +34,19 @@ fn new_connection_callback(new_conn :net_tcp::TcpNewConnection, _killch: std::co
                     Err(err) => {
                         println(fmt!("Receive error: %?", err));
                     },
-                    Ok(bytes) => {
+                    Ok(bytes) => unsafe {
+			visitor_count += 1;
                         let request_str = str::from_bytes(bytes.slice(0, bytes.len() - 1));
                         println(fmt!("Request received:\n%s", request_str));
-                        let response: ~str = ~
-                            "HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n
+                        let response: ~str = 
+                            fmt!("HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n
                              <doctype !html><html><head><title>Hello, Rust!</title>
                              <style>body { background-color: #111; color: #FFEEAA }
                                     h1 { font-size:2cm; text-align: center; color: black; text-shadow: 0 0 4mm red}
                              </style></head>
                              <body>
-                             <h1>Greetings, Rusty!</h1>
-                             </body></html>\r\n";
+                             <h1>%?</h1>
+                             </body></html>\r\n", visitor_count);
 
                         net_tcp::write(&sock, response.as_bytes_with_null_consume());
                     },
