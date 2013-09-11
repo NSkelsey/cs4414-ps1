@@ -10,7 +10,7 @@ The last bit about Iceweasel is there because I am running debian and the defaul
 
 
 problem 2:
-     Rust considers global mutable variables unsafe because there is nothing stopping another thread from editing the value of that variable. This would mean that the value could change at any point in a multithreaded context.
+	Rust considers global mutable variables unsafe because there is nothing stopping another thread from editing the value of that variable. This would mean that the value could change at any point in a multithreaded context.
 In addition to that it is just bad practice to use global variables mutably, because it pollutes the current namespace and creates a piece of
 code that has to be kept track of throughout the entire program.
 
